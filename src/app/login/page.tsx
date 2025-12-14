@@ -32,7 +32,7 @@ export default function LoginPage() {
       console.log("Resultado del login:", result);
 
       if (result?.error) {
-        console.error("Error en signIn:", result.error);
+        console.error("Error en signIn:", result!.error);
         setError("Email o contraseña incorrectos");
       } else if (result?.ok) {
         console.log("Login exitoso, redirigiendo...");

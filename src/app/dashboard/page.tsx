@@ -1,9 +1,10 @@
 "use client";
 
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import PatientTable from '@/components/PatientTable';
+import LogoutButton from '@/components/LogoutButton';
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
@@ -16,10 +17,6 @@ export default function Dashboard() {
       router.push("/login");
     }
   }, [session, status, router]);
-
-  const handleSignOut = () => {
-    signOut({ callbackUrl: "/login" });
-  };
 
   if (status === "loading") {
     return (
@@ -46,12 +43,7 @@ export default function Dashboard() {
               <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
               <p className="text-gray-600">Bienvenido, {session.user?.name || session.user?.email}</p>
             </div>
-            <button
-              onClick={handleSignOut}
-              className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition duration-200"
-            >
-              Cerrar sesión
-            </button>
+            <LogoutButton />
           </div>
         </div>
       </header>
