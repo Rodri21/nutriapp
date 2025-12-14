@@ -2,25 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { connectDB } from '@/utils/mongoose';
 import User from '@/models/User';
+import { registerSchema } from '@/lib/schemas';
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password, name } = await request.json();
-
-    // Validaciones básicas
-    if (!email || !password) {
+    const body = await request.json();
+    
+    // Validar con Zod
+    const validationResult = registerSchema.safeParse(body);
+    if (!validationResult.success) {
       return NextResponse.json(
-        { error: 'Email y contraseña son requeridos' },
+        { error: validationResult.error.issues[0]?.message || 'Datos inválidos' },
         { status: 400 }
       );
     }
-
-    if (password.length < 6) {
-      return NextResponse.json(
-        { error: 'La contraseña debe tener al menos 6 caracteres' },
-        { status: 400 }
-      );
-    }
+    
+    const { email, password, name } = validationResult.data;
 
     // Conectar a la base de datos
     await connectDB();

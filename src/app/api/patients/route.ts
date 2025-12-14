@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/utils/mongoose';
 import Patient from '@/models/Patient';
+import { patientSchema } from '@/lib/schemas';
 
 /**
  * GET /api/patients
@@ -9,7 +10,7 @@ import Patient from '@/models/Patient';
  * @returns NextResponse with array of all patients in JSON format
  */
 export async function GET(request: NextRequest) {
-  connectDB();
+  await connectDB();
   const patients = await Patient.find();
 
   return NextResponse.json(patients);
@@ -23,8 +24,19 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const data = await request.json();
-    const patient = new Patient(data);
+    const body = await request.json();
+    
+    // Validar con Zod
+    const validationResult = patientSchema.safeParse(body);
+    if (!validationResult.success) {
+      return NextResponse.json(
+        { error: validationResult.error.issues[0]?.message || 'Datos inválidos' },
+        { status: 400 }
+      );
+    }
+    
+    await connectDB();
+    const patient = new Patient(validationResult.data);
     const savedPatient = await patient.save();
     console.log(savedPatient);
 
