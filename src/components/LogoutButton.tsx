@@ -3,6 +3,7 @@
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useAuthStore } from '@/store/authStore';
 
 interface LogoutButtonProps {
   className?: string;
@@ -11,11 +12,15 @@ interface LogoutButtonProps {
 export default function LogoutButton({ className = "" }: LogoutButtonProps) {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
+  const { logout } = useAuthStore();
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
     
     try {
+      // Limpiar estado de Zustand primero
+      logout();
+      
       // Llamar a nuestra API de logout personalizada
       await fetch('/api/logout', {
         method: 'POST',

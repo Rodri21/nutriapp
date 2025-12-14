@@ -1,24 +1,24 @@
 "use client";
 
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import PatientTable from '@/components/PatientTable';
 import LogoutButton from '@/components/LogoutButton';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function Dashboard() {
-  const { data: session, status } = useSession();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (status === "loading") return; // Aún cargando
+    if (isLoading) return; // Aún cargando
 
-    if (!session) {
+    if (!isAuthenticated) {
       router.push("/login");
     }
-  }, [session, status, router]);
+  }, [isAuthenticated, isLoading, router]);
 
-  if (status === "loading") {
+  if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
@@ -29,7 +29,7 @@ export default function Dashboard() {
     );
   }
 
-  if (!session) {
+  if (!isAuthenticated) {
     return null; // o podrías mostrar un mensaje de "no autenticado"
   }
 
@@ -41,7 +41,7 @@ export default function Dashboard() {
           <div className="flex justify-between items-center py-6">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-              <p className="text-gray-600">Bienvenido, {session.user?.name || session.user?.email}</p>
+              <p className="text-gray-600">Bienvenido, {user?.name || user?.email}</p>
             </div>
             <LogoutButton />
           </div>
